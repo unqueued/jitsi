@@ -74,6 +74,7 @@ public class CallRecordingConfigForm
     private final SipCommFileChooser dirChooser;
     private JComboBox formatsComboBox;
     private JCheckBox saveCallsToCheckBox;
+    private JCheckBox autoRecordCheckBox;
     /**
      * Directory where calls are stored. Default is SC_HOME/calls.
      */
@@ -109,6 +110,16 @@ public class CallRecordingConfigForm
     public void actionPerformed(ActionEvent e)
     {
         Object source = e.getSource();
+        if (source == autoRecordCheckBox) {
+            boolean selected = autoRecordCheckBox.isSelected();
+
+            NeomediaActivator
+                .getConfigurationService()
+                    .setProperty(
+                        "net.java.sip.communicator.impl.neomedia.AUTORECORD",
+                        selected);
+
+        }
         if (source == saveCallsToCheckBox)
         {
             boolean selected = saveCallsToCheckBox.isSelected();
@@ -239,6 +250,14 @@ public class CallRecordingConfigForm
         labelsPanel.add(formatsLabel);
         labelsPanel.add(saveCallsToCheckBox);
 
+        JPanel autoRecordPanel = new TransparentPanel(new GridLayout(1, 1));
+
+        autoRecordCheckBox
+            = new SIPCommCheckBox("Enble Autorecording");
+        autoRecordCheckBox.addActionListener(this);
+
+        autoRecordPanel.add(autoRecordCheckBox);
+
         // saved calls directory panel
         JPanel callDirPanel = new TransparentPanel(new BorderLayout());
 
@@ -266,6 +285,7 @@ public class CallRecordingConfigForm
 
         mainPanel.add(labelsPanel, BorderLayout.WEST);
         mainPanel.add(valuesPanel, BorderLayout.CENTER);
+        mainPanel.add(autoRecordPanel, BorderLayout.PAGE_END);
 
         this.add(mainPanel, BorderLayout.NORTH);
     }
@@ -293,6 +313,11 @@ public class CallRecordingConfigForm
             = NeomediaActivator.getConfigurationService();
         String format = configuration.getString(Recorder.FORMAT);
 
+        // TODO: Is this the best way? What about getBoolean()
+        boolean autoRecord = (configuration.
+            getString("net.java.sip.communicator.impl.neomedia.AUTORECORD").
+                equals("true") ? true : false );
+
         formatsComboBox.setSelectedItem(
                 (format == null)
                     ? SoundFileUtils.DEFAULT_CALL_RECORDING_FORMAT
@@ -304,6 +329,7 @@ public class CallRecordingConfigForm
         callDirTextField.setEnabled(saveCallsToCheckBox.isSelected());
         callDirTextField.getDocument().addDocumentListener(this);
         callDirChooseButton.setEnabled(saveCallsToCheckBox.isSelected());
+        autoRecordCheckBox.setSelected(autoRecord);
     }
 
     /**
