@@ -125,6 +125,12 @@ public class RecordButton
         if ((saveDir != null) && (saveDir.length() != 0))
             toolTip += " (" + saveDir + ")";
         setToolTipText(toolTip);
+
+        if(configuration.getString(
+            "net.java.sip.communicator.impl.neomedia.AUTORECORD", "false").
+                equals("true")) {
+            this.doClick();
+        }
     }
 
     /**
